@@ -74,7 +74,7 @@ public class Post implements Comparable<Post> {
     }
 
     public void showPost(){
-        System.out.println(id+" "+"User: "+ postedBy +" "+postContent+" Upvotes: "+getUpVotesCount()+" Downvotes: "+getDownVotesCount() );
+        System.out.println("User: "+ postedBy.getUsername() +" "+postContent+" Upvotes: "+getUpVotesCount()+" Downvotes: "+getDownVotesCount() );
     }
 
     public void showAllComments(){

@@ -33,6 +33,7 @@ public class UserService {
     }
 
     public void start(Scanner sc){
+        UserService userService = UserService.UserService();
         while(true){
             System.out.println("1. Sign Up");
             System.out.println("2. Log In");
@@ -54,7 +55,7 @@ public class UserService {
                     String username = sc.next();
                     System.out.println("Enter password: ");
                     String password = sc.next();
-                    signUpUser(email, username, password);
+                    userService.signUpUser(email, username, password);
                     break;
                 }
             }
@@ -63,65 +64,62 @@ public class UserService {
                 String email = sc.next();
                 System.out.println("Enter password: ");
                 String password = sc.next();
-                signInUser(email, password);
-                if(isAuth){
-                    while(isAuth){
-                        System.out.println("1. Show Newsfeed");
-                        System.out.println("2. Add Post");
-                        System.out.println("3. Follow a user");
-                        System.out.println("4. Log out");
-                        int authUserInput = sc.nextInt();
-                        if(authUserInput!=1 && authUserInput!=2 &&authUserInput!=3 && authUserInput!=4){
-                            System.out.println("Invalid input !!!");
+                userService.signInUser(email, password);
+                while(isAuth){
+                    userService.setUpNewsFeed();
+                    System.out.println("1. Show Newsfeed");
+                    System.out.println("2. Add Post");
+                    System.out.println("3. Follow a user");
+                    System.out.println("4. Log out");
+                    int authUserInput = sc.nextInt();
+                    if(authUserInput!=1 && authUserInput!=2 &&authUserInput!=3 && authUserInput!=4){
+                        System.out.println("Invalid input !!!");
+                        continue;
+                    }
+                    if(authUserInput == 1){
+                        userService.showNewsFeed();
+                        System.out.println("0. Exit");
+                        System.out.print("Select post number: ");
+                        int postNumber = sc.nextInt();
+                        if(postNumber == 0)
                             continue;
-                        }
-                        if(authUserInput == 1){
-                            showNewsFeed();
-                            System.out.print("Select post number: ");
-                            int postNumber = sc.nextInt();
-                            if(postService.getPostById(postNumber)!=null){
-                                Post post = postService.getPostById(postNumber);
-                                post.showAllComments();
-                                System.out.print("1.Upvote    2.Downvote    3.Comment    4.Follow author of post");
-                                int postInput = sc.nextInt();
-                                if(postInput == 1){
-                                    post.upVotePost(currentUser);
-                                }
-                                if(postInput == 2){
-                                    post.downVotePost(currentUser);
-                                }
-                                if(postInput == 3){
-                                    String commentContent = sc.next();
-                                    postService.commentOnPost(currentUser, post, commentContent);
-                                }
-                                if(postInput == 4){
-                                    currentUser.follow(post.getPostedBy());
-                                }else{
-                                    System.out.println("No Post with given post number");
-                                }
-
-                            }
-
-                        }
-                        if(authUserInput == 2){
-                            System.out.println(currentUser.getUsername()+" Enter your post: ");
-                            String postContent = sc.next();
-                            postService.addPost(currentUser, postContent);
-                            break;
-                        }
-                        if(authUserInput == 3){
-                            String tryEmail = sc.next();
-                            if(userLoginAuth.containsKey(tryEmail)){
-                                currentUser.follow(userLoginAuth.get(tryEmail));
+                        if(postNumber<=userService.newsFeed.size() && postNumber>0){
+                            Post post = newsFeed.get(postNumber-1);
+                            post.showAllComments();
+                            System.out.print("1.Upvote    2.Downvote    3.Comment    4.Follow author of post  ");
+                            int postInput = sc.nextInt();
+                            if(postInput == 1){
+                                post.upVotePost(userService.currentUser);
+                            }else if(postInput == 2){
+                                post.downVotePost(userService.currentUser);
+                            }else if(postInput == 3){
+                                sc.nextLine();
+                                System.out.print("Enter comment for post: ");
+                                String commentContent = sc.nextLine();
+                                postService.commentOnPost(userService.currentUser, post, commentContent);
+                            }else if(postInput == 4){
+                                userService.currentUser.follow(post.getPostedBy());
                             }else{
-                                System.out.println("Email does not exist");
+                                System.out.println("Invalid input");
                             }
+                        }else{
+                            System.out.println("Post with that number does not exist!!!.");
                         }
-                        if(authUserInput == 4){
-                            System.out.println("Signing out of account.");
-                            signOutUser();
-                            break;
+                    } else if(authUserInput == 2){
+                        sc.nextLine();
+                        System.out.println(userService.currentUser.getUsername()+" Enter your post: ");
+                        String postContent = sc.nextLine();
+                        postService.addPost(userService.currentUser, postContent);
+                    } else if(authUserInput == 3){
+                        String tryEmail = sc.next();
+                        if(userService.userLoginAuth.containsKey(tryEmail)){
+                            userService.currentUser.follow(userService.userLoginAuth.get(tryEmail));
+                        }else{
+                            System.out.println("Email does not exist");
                         }
+                    } else if(authUserInput == 4){
+                        System.out.println("Signing out of account.");
+                        userService.signOutUser();
                     }
                 }
             }
@@ -129,11 +127,14 @@ public class UserService {
     }
 
     private void showNewsFeed(){
-        for(Post p : newsFeed){
-            p.showPost();
+        for(int i=0;i<newsFeed.size();i++){
+            System.out.print((i+1)+" ");
+            newsFeed.get(i).showPost();
         }
     }
     private void setUpNewsFeed(){
+        if(!isAuth)
+            return;
         newsFeed = new ArrayList<>();
         Collections.sort(postService.posts);
         for(Post post : postService.posts){

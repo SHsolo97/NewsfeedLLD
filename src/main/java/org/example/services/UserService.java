@@ -1,5 +1,6 @@
 package org.example.services;
 
+import org.example.models.Comment;
 import org.example.models.Post;
 import org.example.models.User;
 import org.example.utils.EmailValidator;
@@ -86,7 +87,7 @@ public class UserService {
                         if(postNumber<=userService.newsFeed.size() && postNumber>0){
                             Post post = newsFeed.get(postNumber-1);
                             post.showAllComments();
-                            System.out.print("1.Upvote    2.Downvote    3.Comment    4.Follow author of post  ");
+                            System.out.print("1.Upvote    2.Downvote    3.Comment    4.Follow author of post    5.Upvote comment    6.Downvote comment");
                             int postInput = sc.nextInt();
                             if(postInput == 1){
                                 post.upVotePost(userService.currentUser);
@@ -99,7 +100,20 @@ public class UserService {
                                 postService.commentOnPost(userService.currentUser, post, commentContent);
                             }else if(postInput == 4){
                                 userService.currentUser.follow(post.getPostedBy());
-                            }else{
+                            }else if(postInput == 5 || postInput == 6){
+                                int commentNo = sc.nextInt();
+                                if(commentNo<=post.getComments().size() && commentNo>0){
+                                    Comment selectedComment = post.getComments().get(commentNo-1);
+                                    if(postInput == 5)
+                                        selectedComment.upVoteComment(userService.currentUser);
+                                    else
+                                        selectedComment.downVoteComment(userService.currentUser);
+                                }else{
+                                    System.out.println("Invalid comment number");
+                                    continue;
+                                }
+                            }
+                            else{
                                 System.out.println("Invalid input");
                             }
                         }else{
@@ -111,6 +125,7 @@ public class UserService {
                         String postContent = sc.nextLine();
                         postService.addPost(userService.currentUser, postContent);
                     } else if(authUserInput == 3){
+                        System.out.print("Enter email of user to follow: ");
                         String tryEmail = sc.next();
                         if(userService.userLoginAuth.containsKey(tryEmail)){
                             userService.currentUser.follow(userService.userLoginAuth.get(tryEmail));

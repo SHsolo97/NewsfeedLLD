@@ -74,12 +74,17 @@ public class Post implements Comparable<Post> {
     }
 
     public void showPost(){
-        System.out.println("User: "+ postedBy.getUsername() +" "+postContent+" Upvotes: "+getUpVotesCount()+" Downvotes: "+getDownVotesCount() );
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        long currentTime = currentTimestamp.getTime();
+        long commentTime = timestamp.getTime();
+        long timeElapsed = (currentTime- commentTime)/(60*1000);
+        System.out.println("User: "+ postedBy.getUsername() +" "+postContent+" Upvotes: "+getUpVotesCount()+" Downvotes: "+getDownVotesCount()+"     "+timeElapsed+" minutes ago" );
     }
 
     public void showAllComments(){
-        for(Comment comment:comments){
-            comment.showComment();
+        for(int i=0;i<comments.size();i++){
+            System.out.print((i+1)+". ");
+            comments.get(i).showComment();
         }
     }
     public int getUpVotesCount(){

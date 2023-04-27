@@ -23,7 +23,17 @@ public class Comment {
         timestamp = new Timestamp(System.currentTimeMillis());
     }
     public void showComment(){
-        System.out.println(commentedBy.getUsername()+": "+content);
+        Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+        long currentTime = currentTimestamp.getTime();
+        long commentTime = timestamp.getTime();
+        long timeElapsed = (currentTime- commentTime)/(60*1000000000);
+        System.out.println(commentedBy.getUsername()+": "+content+" "+timeElapsed+"minutes ago");
+    }
+    public int getUpVotesCount(){
+        return upVotedUsers.size();
+    }
+    public int getDownVotesCount(){
+        return downVotedUsers.size();
     }
     public void upVoteComment(User user){
         if(downVotedUsers.contains(user))
